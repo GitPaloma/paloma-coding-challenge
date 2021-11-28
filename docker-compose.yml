@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  flask:
+    build: ./flask-backend
+    # The first time this builds it will start before the DB is ready.
+    restart: on-failure:3
+    command: sh -c 'flask db upgrade && flask run -h 0.0.0.0'
+    volumes:
+      - ./flask-backend/:/usr/src/flask/
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgresql:password@db:5432/paloma
+    depends_on:
+      - db
+
+  react:
+    build: ./react-frontend
+    command: npm run dev
+    ports:
+      - 3000:3000
+    volumes:
+      - ./react-frontend/:/usr/src/react/
+      - /usr/src/react/node_modules
+
+  db:
+    image: postgres:alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgresql
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=paloma
+
+volumes:
+  postgres_data:

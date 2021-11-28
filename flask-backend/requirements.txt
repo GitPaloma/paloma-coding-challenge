@@ -1,0 +1,5 @@
+alembic
+Flask
+flask_cors
+Flask-Migrate
+psycopg2
